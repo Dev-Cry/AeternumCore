@@ -35,7 +35,7 @@ internal class Program
                 .AddDefaultTokenProviders();
 
             // Pøidání AutoMapper
-            builder.Services.AddAutoMapper(typeof(Program)); // nebo specifikuj tøídu profilu
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             // Pøidání dalších služeb do kontejneru
             builder.Services.AddControllers();

@@ -71,8 +71,17 @@ namespace AeternumCore.Data.Entity
         public virtual ApplicationUserEntity User { get; set; }
 
         /// <summary>
+        /// Vrátí celé jméno uživatele.
+        /// </summary>
+        public string GetFullName()
+        {
+            return $"{FirstName} {LastName}";
+        }
+
+        /// <summary>
         /// Aktualizuje profilové informace.
         /// </summary>
+        /// 
         public void UpdateProfile(string firstName, string lastName, DateTime dateOfBirth, string profilePictureUrl)
         {
             FirstName = firstName;

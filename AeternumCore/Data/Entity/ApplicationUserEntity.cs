@@ -25,6 +25,11 @@ namespace AeternumCore.Data.Entity
         /// </summary>
         public void UpdateUserInfo(string firstName, string lastName, bool isActive)
         {
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new ArgumentException("First name and last name cannot be empty.");
+            }
+
             Profile.FirstName = firstName;
             Profile.LastName = lastName;
             IsActive = isActive;
@@ -49,6 +54,26 @@ namespace AeternumCore.Data.Entity
             IsBlocked = false;
             BlockedAt = null;
             UpdatedAt = DateTime.UtcNow; // Automatická aktualizace
+        }
+        /// <summary>
+        /// Přidá roli k uživateli.
+        /// </summary>
+        public void AddRole(ApplicationUserRoleEntity userRole)
+        {
+            UserRoles.Add(userRole);
+            UpdatedAt = DateTime.UtcNow; // Aktualizuje čas poslední změny
+        }
+
+        /// <summary>
+        /// Odebere roli z uživatele.
+        /// </summary>
+        public void RemoveRole(ApplicationUserRoleEntity userRole)
+        {
+            if (UserRoles.Contains(userRole))
+            {
+                UserRoles.Remove(userRole);
+                UpdatedAt = DateTime.UtcNow; // Aktualizuje čas poslední změny
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 @AeternumCore_HostAddress = http://localhost:5130
 
-GET {{AeternumCore_HostAddress}}/weatherforecast/
+GET {{AeternumCore_HostAddress}}/Aeternum/
 Accept: application/json
 
 ###

@@ -1,6 +1,8 @@
 ﻿using AeternumCore.Data.Entity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace AeternumCore.Data
 {
@@ -19,6 +21,7 @@ namespace AeternumCore.Data
         {
             base.OnModelCreating(builder);
 
+            // Nastavení vztahů
             builder.Entity<ApplicationUserProfileEntity>()
                 .HasOne(up => up.User)
                 .WithOne(u => u.Profile)
@@ -36,6 +39,17 @@ namespace AeternumCore.Data
                 .HasMany(r => r.RoleClaims)
                 .WithOne(rc => rc.Role)
                 .HasForeignKey(rc => rc.RoleId);
+
+            // Přidání indexů
+            builder.Entity<ApplicationUserRoleEntity>()
+                .HasIndex(ur => ur.RoleId);
+
+            builder.Entity<ApplicationRolePermissionEntity>()
+                .HasIndex(rp => rp.RoleId);
+
+            builder.Entity<ApplicationRoleClaimEntity>()
+                .HasIndex(rc => rc.RoleId);
         }
+
     }
 }
