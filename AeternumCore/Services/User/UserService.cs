@@ -1,33 +1,34 @@
 ﻿using AeternumCore.Data.DataTransferObjects;
 using AeternumCore.Data.Entities;
-using AeternumCore.Services.User;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using AeternumCore.Services.User.Role;
 
-public class UserService : IUserService
+namespace AeternumCore.Services.User
 {
-    private readonly UserManager<ApplicationUserEntity> _userManager;
-    private readonly IMapper _mapper;
-    private readonly ILogger<UserService> _logger;
-
-    public UserService(UserManager<ApplicationUserEntity> userManager, IMapper mapper, ILogger<UserService> logger)
+    public class UserService : IUserService
     {
-        _userManager = userManager;
-        _mapper = mapper;
-        _logger = logger;
-    }
+        private readonly UserManager<ApplicationUserEntity> _userManager;
+        private readonly IRoleService _roleService;
+        private readonly IMapper _mapper;
+        private readonly ILogger<UserService> _logger;
 
-    public async Task<ApplicationUserDto> GetUserByIdAsync(string userId)
-    {
-        _logger.LogInformation("Fetching user by ID: {UserId}", userId);
-        try
+        public UserService(UserManager<ApplicationUserEntity> userManager, IRoleService roleService, IMapper mapper, ILogger<UserService> logger)
         {
+            _userManager = userManager;
+            _roleService = roleService;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        public async Task<ApplicationUserDto> GetUserByIdAsync(string userId)
+        {
+            _logger.LogInformation("Fetching user by ID: {UserId}", userId);
             var userEntity = await _userManager.FindByIdAsync(userId);
             if (userEntity == null)
             {
@@ -36,33 +37,17 @@ public class UserService : IUserService
             }
             return _mapper.Map<ApplicationUserDto>(userEntity);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching user by ID {UserId}", userId);
-            throw;
-        }
-    }
 
-    public async Task<IEnumerable<ApplicationUserDto>> GetAllUsersAsync()
-    {
-        _logger.LogInformation("Fetching all users");
-        try
+        public async Task<IEnumerable<ApplicationUserDto>> GetAllUsersAsync()
         {
+            _logger.LogInformation("Fetching all users");
             var userEntities = await _userManager.Users.ToListAsync();
             return _mapper.Map<IEnumerable<ApplicationUserDto>>(userEntities);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching all users");
-            throw;
-        }
-    }
 
-    public async Task<ApplicationUserDto> CreateUserAsync(ApplicationUserDto userDto)
-    {
-        _logger.LogInformation("Creating user with email: {Email}", userDto.Email);
-        try
+        public async Task<ApplicationUserDto> CreateUserAsync(ApplicationUserDto userDto)
         {
+            _logger.LogInformation("Creating user with email: {Email}", userDto.Email);
             var userEntity = _mapper.Map<ApplicationUserEntity>(userDto);
             var result = await _userManager.CreateAsync(userEntity);
             if (result.Succeeded)
@@ -75,18 +60,10 @@ public class UserService : IUserService
             _logger.LogError("Error creating user {Email}: {Errors}", userDto.Email, errorMessages);
             throw new Exception($"User creation failed: {errorMessages}");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Exception occurred while creating user with email {Email}", userDto.Email);
-            throw;
-        }
-    }
 
-    public async Task<ApplicationUserDto> UpdateUserAsync(ApplicationUserDto userDto)
-    {
-        _logger.LogInformation("Updating user with ID: {UserId}", userDto.Id);
-        try
+        public async Task<ApplicationUserDto> UpdateUserAsync(ApplicationUserDto userDto)
         {
+            _logger.LogInformation("Updating user with ID: {UserId}", userDto.Id);
             var userEntity = await _userManager.FindByIdAsync(userDto.Id);
             if (userEntity == null)
             {
@@ -106,18 +83,10 @@ public class UserService : IUserService
             _logger.LogError("Error updating user {UserId}: {Errors}", userDto.Id, errorMessages);
             throw new Exception($"User update failed: {errorMessages}");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Exception occurred while updating user with ID {UserId}", userDto.Id);
-            throw;
-        }
-    }
 
-    public async Task DeleteUserAsync(string userId)
-    {
-        _logger.LogInformation("Deleting user with ID: {UserId}", userId);
-        try
+        public async Task DeleteUserAsync(string userId)
         {
+            _logger.LogInformation("Deleting user with ID: {UserId}", userId);
             var userEntity = await _userManager.FindByIdAsync(userId);
             if (userEntity == null)
             {
@@ -137,10 +106,56 @@ public class UserService : IUserService
                 throw new Exception($"User deletion failed: {errorMessages}");
             }
         }
-        catch (Exception ex)
+
+        public async Task<ApplicationUserDto> AssignRoleToUserAsync(string userId, string roleId)
         {
-            _logger.LogError(ex, "Exception occurred while deleting user with ID {UserId}", userId);
-            throw;
+            _logger.LogInformation("Assigning role '{RoleId}' to user '{UserId}'", roleId, userId);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            var role = await _roleService.GetRoleByIdAsync(roleId);
+            if (role == null)
+            {
+                _logger.LogWarning("Role with ID {RoleId} not found.", roleId);
+                throw new KeyNotFoundException($"Role with ID {roleId} not found.");
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, role.Name);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Error assigning role '{RoleId}' to user '{UserId}': {Errors}", roleId, userId, errors);
+                throw new Exception($"Failed to assign role: {errors}");
+            }
+
+            _logger.LogInformation("Role '{RoleId}' assigned to user '{UserId}' successfully", roleId, userId);
+            return _mapper.Map<ApplicationUserDto>(user);
+        }
+
+        public async Task<ApplicationUserDto> RemoveRoleFromUserAsync(string userId, string roleId)
+        {
+            _logger.LogInformation("Removing role '{RoleId}' from user '{UserId}'", roleId, userId);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            var result = await _userManager.RemoveFromRoleAsync(user, roleId);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Error removing role '{RoleId}' from user '{UserId}': {Errors}", roleId, userId, errors);
+                throw new Exception($"Failed to remove role: {errors}");
+            }
+
+            _logger.LogInformation("Role '{RoleId}' removed from user '{UserId}' successfully", roleId, userId);
+            return _mapper.Map<ApplicationUserDto>(user);
         }
     }
 }

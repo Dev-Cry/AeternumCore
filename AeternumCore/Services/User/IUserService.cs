@@ -9,5 +9,7 @@ namespace AeternumCore.Services.User
         Task<ApplicationUserDto> CreateUserAsync(ApplicationUserDto userDto);
         Task<ApplicationUserDto> UpdateUserAsync(ApplicationUserDto userDto);
         Task DeleteUserAsync(string userId);
+        Task<ApplicationUserDto> AssignRoleToUserAsync(string userId, string roleId);
+        Task<ApplicationUserDto> RemoveRoleFromUserAsync(string userId, string roleId);
     }
 }
