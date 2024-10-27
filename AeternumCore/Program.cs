@@ -1,5 +1,5 @@
 using AeternumCore.Data;
-using AeternumCore.Data.Entity;
+using AeternumCore.Data.Entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

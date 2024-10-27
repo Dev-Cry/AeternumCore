@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AeternumCore.Data.Entity
+namespace AeternumCore.Data.Entities
 {
     /// <summary>
     /// Reprezentuje osobní informace uživatele.

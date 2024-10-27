@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AeternumCore.Data.Entity
+namespace AeternumCore.Data.Entities
 {
     /// <summary>
     /// Reprezentuje uživatele aplikace s rozšířenými vlastnostmi.

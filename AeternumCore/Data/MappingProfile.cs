@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using AeternumCore.Data.Entity;
+using AeternumCore.Data.Entities;
 using AeternumCore.Data.DataTransferObjects;
-
 namespace AeternumCore.Data
 {
 

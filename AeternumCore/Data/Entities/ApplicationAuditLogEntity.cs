@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AeternumCore.Data.Entity
+namespace AeternumCore.Data.Entities
 {
     public class ApplicationAuditLogEntity
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace AeternumCore.Data.Entity
+namespace AeternumCore.Data.Entities
 {
     public class ApplicationRoleClaimEntity : IdentityRoleClaim<string>
     {

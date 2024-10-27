@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace AeternumCore.Data.Entity
+namespace AeternumCore.Data.Entities
 {
     /// <summary>
     /// Reprezentuje roli uživatele aplikace s rozšířenými vlastnostmi.
