@@ -22,6 +22,11 @@ namespace AeternumCore.Data.Entities
         /// </summary>
         public void AssignRole(ApplicationRoleEntity role)
         {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role), "Role nemůže být null.");
+            }
+
             Role = role;
             AssignedAt = DateTime.UtcNow;
         }
@@ -31,16 +36,7 @@ namespace AeternumCore.Data.Entities
         /// </summary>
         public void RemoveRole()
         {
-            Role = null; // Můžeš také zvážit, zda uchovat historii
-        }
-
-        /// <summary>
-        /// Aktualizuje přiřazenou roli a aktualizuje čas přiřazení.
-        /// </summary>
-        public void UpdateRole(ApplicationRoleEntity role)
-        {
-            Role = role;
-            AssignedAt = DateTime.UtcNow;
+            Role = null; // Můžete také zvážit, zda uchovat historii
         }
 
         /// <summary>
@@ -48,7 +44,7 @@ namespace AeternumCore.Data.Entities
         /// </summary>
         public string GetRoleName()
         {
-            return Role?.Name ?? "Žádná role"; // nebo můžeš vrátit null, pokud je Role null
+            return Role?.Name; // Vrátí null, pokud je Role null
         }
 
         /// <summary>
@@ -57,6 +53,20 @@ namespace AeternumCore.Data.Entities
         public bool IsRoleAssigned()
         {
             return Role != null;
+        }
+
+        /// <summary>
+        /// Aktualizuje přiřazenou roli a aktualizuje čas přiřazení.
+        /// </summary>
+        public void UpdateRole(ApplicationRoleEntity role)
+        {
+            if (role == null)
+            {
+                throw new ArgumentNullException(nameof(role), "Role nemůže být null.");
+            }
+
+            Role = role;
+            AssignedAt = DateTime.UtcNow;
         }
     }
 }

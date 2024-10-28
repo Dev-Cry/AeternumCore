@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AeternumCore.Data.Entities
 {
@@ -15,6 +16,7 @@ namespace AeternumCore.Data.Entities
         [MaxLength(100, ErrorMessage = "Oprávnění nesmí překročit 100 znaků.")]
         public string Permission { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
@@ -27,19 +29,13 @@ namespace AeternumCore.Data.Entities
         /// </summary>
         public void UpdatePermission(string permission)
         {
-            if (!IsPermissionValid(permission))
-            {
-                throw new ArgumentException("Neplatné oprávnění.");
-            }
-
-            Permission = permission;
-            AssignedAt = DateTime.UtcNow;
+            AssignPermission(permission); // Tímto zjednodušíme kontrolu a přiřazení
         }
 
         /// <summary>
         /// Kontroluje, zda je dané oprávnění platné.
         /// </summary>
-        public bool IsPermissionValid(string permission)
+        public static bool IsPermissionValid(string permission)
         {
             // Můžete mít seznam platných oprávnění
             var validPermissions = new[] { "CanEditArticle", "CanDeleteUser", "CanViewReports" };

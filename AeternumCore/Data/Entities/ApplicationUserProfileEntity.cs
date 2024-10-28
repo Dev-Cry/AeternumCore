@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AeternumCore.Data.Entities
@@ -81,9 +82,13 @@ namespace AeternumCore.Data.Entities
         /// <summary>
         /// Aktualizuje profilové informace.
         /// </summary>
-        /// 
         public void UpdateProfile(string firstName, string lastName, DateTime dateOfBirth, string profilePictureUrl)
         {
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new ArgumentException("Jméno a příjmení nemohou být prázdné.");
+            }
+
             FirstName = firstName;
             LastName = lastName;
             DateOfBirth = dateOfBirth;
@@ -93,10 +98,10 @@ namespace AeternumCore.Data.Entities
         /// <summary>
         /// Kontroluje, zda jsou profilové informace platné.
         /// </summary>
-        public bool IsValid()
+        public bool IsValid(out List<ValidationResult> validationResults)
         {
+            validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(this);
-            var validationResults = new List<ValidationResult>();
             return Validator.TryValidateObject(this, validationContext, validationResults, true);
         }
 

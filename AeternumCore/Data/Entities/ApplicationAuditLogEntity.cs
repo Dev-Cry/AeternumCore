@@ -1,39 +1,47 @@
-﻿using System;
+﻿using AeternumCore.Data.Enums;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AeternumCore.Data.Entities
 {
     public class ApplicationAuditLogEntity
     {
         public int Id { get; set; }
-        public string Action { get; set; } // Např. "UpdateUser", "AddClaim"
-        public string EntityName { get; set; } // Např. "User", "Role"
-        public string EntityId { get; set; } // ID upravované entity
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        public string? ChangedBy { get; set; } // Kdo změnu provedl
 
-        /// <summary>
-        /// Vrátí podrobnosti o záznamu auditování.
-        /// </summary>
+        [Required]
+        [StringLength(100)]
+        public string Action { get; set; }
+
+        [StringLength(1000)]
+        public string Description { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        public string EntityName { get; set; }
+        public string EntityId { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        public string? ChangedBy { get; set; }
+
         public string GetAuditLogDetails()
         {
             return $"Action: {Action}, Entity: {EntityName}, Entity ID: {EntityId}, Timestamp: {FormatTimestamp()}, Changed By: {ChangedBy}";
         }
 
-        /// <summary>
-        /// Zjistí, zda se změna týká citlivých informací.
-        /// </summary>
         public bool IsSensitiveChange()
         {
-            // Předpokládejme, že změny uživatelského jména a hesla jsou citlivé
-            return Action == "UpdateUser" || Action == "ChangePassword";
+            return Action == nameof(AuditAction.UpdateUser) || Action == nameof(AuditAction.ChangePassword);
         }
 
-        /// <summary>
-        /// Naformátuje časové razítko do čitelného formátu.
-        /// </summary>
         public string FormatTimestamp()
         {
             return Timestamp.ToString("yyyy-MM-dd HH:mm:ss");
         }
+
+        public void UpdateTimestamp() => Timestamp = DateTime.UtcNow;
     }
 }

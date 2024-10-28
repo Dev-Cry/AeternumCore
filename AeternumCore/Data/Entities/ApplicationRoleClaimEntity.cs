@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AeternumCore.Data.Entities
 {
     public class ApplicationRoleClaimEntity : IdentityRoleClaim<string>
     {
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Navigační vlastnost k ApplicationRoleEntity.
@@ -19,9 +21,12 @@ namespace AeternumCore.Data.Entities
         /// <param name="newClaimValue">Nová hodnota claimu.</param>
         public void UpdateClaim(string newClaimType, string newClaimValue)
         {
-            ClaimType = newClaimType;
-            ClaimValue = newClaimValue;
-            CreatedAt = DateTime.UtcNow; // Aktualizuje čas vytvoření
+            if (!string.IsNullOrEmpty(newClaimType) && !string.IsNullOrEmpty(newClaimValue))
+            {
+                ClaimType = newClaimType;
+                ClaimValue = newClaimValue;
+                CreatedAt = DateTime.UtcNow; // Aktualizuje čas vytvoření
+            }
         }
 
         /// <summary>
@@ -37,16 +42,15 @@ namespace AeternumCore.Data.Entities
         /// </summary>
         public bool IsClaimValid()
         {
-            // Přizpůsobte logiku podle potřeby
             return !string.IsNullOrEmpty(ClaimType) && !string.IsNullOrEmpty(ClaimValue);
         }
 
         /// <summary>
         /// Naformátuje datum vytvoření do čitelného formátu.
         /// </summary>
-        private string FormatCreatedAt()
+        private string FormatCreatedAt(string format = "yyyy-MM-dd HH:mm:ss")
         {
-            return CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+            return CreatedAt.ToString(format);
         }
     }
 }
